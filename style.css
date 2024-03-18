@@ -17,7 +17,7 @@ body {
 }
 
 .terminal-container {
-    margin-right: 220px; /* Adjust based on the width of the sidebar */
+    margin-right: 100px; /* Adjust based on the width of the sidebar */
     padding: 20px;
     overflow-y: auto; /* Enable vertical scrolling */
     height: 90vh; /* Adjust as needed */
