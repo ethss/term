@@ -1,0 +1,49 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    color: #0f0;
+    font-family: monospace;
+    overflow: hidden;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 200px;
+    background-color: #222;
+    padding: 20px;
+}
+
+.terminal-container {
+    margin-right: 220px; /* Adjust based on the width of the sidebar */
+    padding: 20px;
+    overflow-y: auto; /* Enable vertical scrolling */
+    height: 100vh; /* Adjust as needed */
+}
+
+.terminal {
+    white-space: pre-wrap;
+}
+
+button {
+    display: block;
+    background-color: #000;
+    color: #0f0;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 10px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #0f0;
+    color: #000;
+}
+
+#asciiArt {
+    margin: 0;
+    font-family: monospace;
+}
