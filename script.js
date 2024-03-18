@@ -83,7 +83,7 @@ function addEventListeners() {
       const data = await response.json();
       const setup = data.setup;
       const punchline = data.punchline;
-      await addTextToTerminal(`\nJoke:\n${setup}\n${punchline}\n`);
+      await addTextToTerminal(`\nJoke:\n${setup}\n${punchline}\n\n\n`);
   });
 }
 
