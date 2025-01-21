@@ -1,90 +1,270 @@
-async function typeText(text, delay, targetElement) {
-  return new Promise(resolve => {
-      let index = 0;
-      const intervalId = setInterval(() => {
-          targetElement.textContent += text[index++];
-          if (index === text.length) {
-              clearInterval(intervalId);
-              resolve();
-          }
-      }, delay);
-  });
-}
+class Terminal {
+  constructor() {
+    this.outputDiv = document.getElementById('output');
+    this.input = document.getElementById('commandInput');
+    this.inputLine = document.querySelector('.input-line');
+    
+    // Hide input initially
+    this.inputLine.style.display = 'none';
+    
+    this.setupDraggableTerminal();
+    this.setup();
+    this.initializeTerminal();
+  }
 
-async function displayText(targetElement, messages) {
-  for (const message of messages) {
-      await typeText(message, 50, targetElement);
+  setupDraggableTerminal() {
+    const terminal = document.querySelector('.terminal');
+    const header = document.querySelector('.terminal-header');
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    header.addEventListener('mousedown', startDragging);
+
+    function startDragging(e) {
+      if (!e.target.closest('.terminal-header') || e.target.closest('.control')) {
+        return;
+      }
+      initialX = e.clientX - xOffset;
+      initialY = e.clientY - yOffset;
+      isDragging = true;
+    }
+
+    function drag(e) {
+      if (isDragging) {
+        e.preventDefault();
+        currentX = e.clientX - initialX;
+        currentY = e.clientY - initialY;
+
+        xOffset = currentX;
+        yOffset = currentY;
+
+        setTranslate(currentX, currentY, terminal);
+      }
+    }
+
+    function stopDragging() {
+      initialX = currentX;
+      initialY = currentY;
+      isDragging = false;
+    }
+
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDragging);
+
+    function setTranslate(xPos, yPos, el) {
+      el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    }
+  }
+
+  setup() {
+    this.input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const command = this.input.value.toLowerCase().trim();
+        if (command) { 
+          this.processCommand(command);
+          this.input.value = '';
+        }
+      }
+    });
+  }
+
+  async initializeTerminal() {
+    this.outputDiv.innerHTML = '';
+    
+    await this.typeText(
+      "INITIALIZING SECURE SYSTEMS...\n" +
+      "■■■■■■■■■■■■■■■■■■■■■ 100%\n\n" +
+      "ESTABLISHING SECURE CONNECTION...\n" +
+      "ENCRYPTION PROTOCOLS: ACTIVE\n" +
+      "FIREWALL STATUS: ENABLED\n" +
+      "SYSTEM INTEGRITY: VERIFIED\n\n" +
+      "SECURE TERMINAL v2.0.3 READY\n" +
+      "Welcome to the secure communication terminal.\n\n" +
+      "Available commands:\n" +
+      "help     - Show available commands\n" +
+      "clear    - Clear screen\n" +
+      "email    - Show contact email\n" +
+      "about    - About this terminal\n" +
+      "time     - Show current time\n" +
+      "contact  - Display contact methods\n" +
+      "matrix   - Display matrix effect\n" +
+      "system   - Show system status\n" +
+      "Type a command to begin."
+    );
+    
+    // Show input line after initialization
+    this.inputLine.style.display = 'flex';
+    this.input.focus();
+  }
+
+  async typeText(text, className = '') {
+    const line = document.createElement('div');
+    line.className = `output-line ${className}`;
+    this.outputDiv.appendChild(line);
+    
+    for (let char of text) {
+      line.textContent += char;
+      // Auto scroll with each character
+      this.outputDiv.scrollTop = this.outputDiv.scrollHeight;
+      await new Promise(resolve => setTimeout(resolve, 10));
+    }
+    // Ensure final scroll
+    this.outputDiv.scrollTop = this.outputDiv.scrollHeight;
+  }
+
+  async processCommand(command) {
+    await this.typeText(`> ${command}`, 'command');
+
+    switch(command) {
+      case 'help':
+        await this.showHelp();
+        break;
+      case 'clear':
+        this.outputDiv.innerHTML = '';
+        break;
+      case 'email':
+        await this.showEmail();
+        break;
+      case 'about':
+        await this.showAbout();
+        break;
+      case 'time':
+        await this.showTime();
+        break;
+      case 'contact':
+        await this.showContact();
+        break;
+      case 'matrix':
+        await this.showMatrix();
+        break;
+      case 'system':
+        await this.showSystemStatus();
+        break;
+      default:
+        await this.typeText('Command not recognized. Type "help" for available commands.', 'error');
+    }
+    
+    this.outputDiv.scrollTop = this.outputDiv.scrollHeight;
+  }
+
+  async showHelp() {
+    const commands = [
+      'AVAILABLE COMMANDS:\n',
+      'help     - Show this help message',
+      'clear    - Clear terminal screen',
+      'email    - Show contact email',
+      'about    - About this terminal',
+      'time     - Show current time',
+      'contact  - Display contact methods',
+      'matrix   - Display matrix effect',
+      'system   - Show system status'
+    ].join('\n');
+    
+    await this.typeText(commands);
+  }
+
+  async showEmail() {
+    await this.typeText(
+      '\nSECURE CONTACT EMAIL:\n' +
+      '████████████████████\n' +
+      'downfall@email.com\n' +
+      '████████████████████\n',
+      'success'
+    );
+  }
+
+  async showAbout() {
+    await this.typeText(
+      '\nSECURE TERMINAL v2.0.3\n' +
+      'Developed for secure communications\n' +
+      'Build: 20231124\n' +
+      'Encryption: AES-256\n' +
+      'Status: OPERATIONAL\n'
+    );
+  }
+
+  async showTime() {
+    const now = new Date();
+    await this.typeText(
+      '\nCURRENT SYSTEM TIME:\n' +
+      now.toLocaleString() + '\n' +
+      'TIMEZONE: ' + Intl.DateTimeFormat().resolvedOptions().timeZone + '\n'
+    );
+  }
+
+  async showContact() {
+    await this.typeText(
+      '\nCONTACT METHODS:\n' +
+      '██████████████████████████████\n' +
+      'EMAIL: downfall@email.com\n' +
+      'SECURE LINE: ACTIVE\n' +
+      'ENCRYPTION: ENABLED\n' +
+      'STATUS: ONLINE\n' +
+      '██████████████████████████████\n',
+      'success'
+    );
+  }
+
+  async showMatrix() {
+    await this.typeText(
+      '\nINITIATING MATRIX SEQUENCE...\n' +
+      '██████████████████████\n' +
+      '01001000 01000101 01001100 01001100 01001111\n' +
+      '10101010 11001100 10101010 11001100\n' +
+      'MATRIX ONLINE\n' +
+      '██████████████████████\n',
+      'success'
+    );
+  }
+
+  async showSystemStatus() {
+    const status = [
+      '\nSYSTEM STATUS REPORT:',
+      '━━━━━━━━━━━━━━━━━━━━━━━',
+      'CPU: 3.6 GHz Quantum Processor',
+      'MEMORY: 32TB Quantum RAM',
+      'ENCRYPTION: AES-512 Military Grade',
+      'FIREWALL: ACTIVE - 0 THREATS DETECTED',
+      'NETWORK: SECURED VIA QUANTUM TUNNEL',
+      'LOCATION: CLASSIFIED',
+      'UPTIME: 1337 DAYS',
+      '━━━━━━━━━━━━━━━━━━━━━━━'
+    ].join('\n');
+    
+    await this.typeText(status, 'warning');
   }
 }
 
-async function startTerminal() {
-  const initialText = document.getElementById('initialText');
-  await displayText(initialText, [
-      "Welcome to the Hacker Terminal!\n",
-      "Initializing system...\n",
-      "Accessing secure servers...\n",
-      "Securing connection...\n",
-      "Ready.\n\n",
-      " ________________________________________\n",
-      "< Hacker Mode Activated >\n",
-      " ----------------------------------------\n"
-  ]);
+document.addEventListener('DOMContentLoaded', () => {
+  const terminal = new Terminal();
+  
+  const themeBtns = document.querySelectorAll('.theme-btn');
+  
+  themeBtns.forEach(btn => {
+    const theme = btn.dataset.theme;
+    setThemeButtonColor(btn, theme);
+    
+    btn.addEventListener('click', () => {
+      document.body.dataset.theme = theme;
+      themeBtns.forEach(btn => setThemeButtonColor(btn, btn.dataset.theme));
+    });
+  });
+});
 
-  document.getElementById('infoButton1').style.display = 'block';
-  document.getElementById('infoButton2').style.display = 'block';
-  document.getElementById('jokeButton').style.display = 'block';
+function setThemeButtonColor(btn, theme) {
+  const themeStyles = {
+    'pastel': ['#ffb5e8', '#b8c0ff'],
+    'forest': ['#57b894', '#7ed957'],
+    'cyber': ['#00ff9f', '#00b8ff'],
+    'sunset': ['#ff7e5f', '#feb47b'],
+    'galaxy': ['#8A2BE2', '#FF69B4']
+  };
+  
+  const [primary, secondary] = themeStyles[theme];
+  btn.style.background = `linear-gradient(45deg, ${primary}, ${secondary})`;
 }
-
-startTerminal();
-
-async function addTextToTerminal(text) {
-  const terminal = document.getElementById('terminal');
-  const pre = document.createElement('pre');
-  pre.textContent = text;
-  terminal.appendChild(pre);
-  terminal.scrollTop = terminal.scrollHeight;
-}
-
-function addEventListeners() {
-  document.getElementById('infoButton1').addEventListener('click', async function() {
-      const response = await fetch('https://api.coinbase.com/v2/prices/LTC-USD/spot');
-      const data = await response.json();
-      const ltcPrice = data.data.amount;
-      await addTextToTerminal(`Litecoin Price: $${ltcPrice}\n`);
-  });
-
-  document.getElementById('infoButton2').addEventListener('click', async function() {
-      const pythonCodes = [
-          "print('Hello, world!')",
-          "for i in range(5):\n    print(i)",
-          "def factorial(n):\n    if n == 0:\n        return 1\n    else:\n        return n * factorial(n-1)"
-          // Add more Python code snippets as needed
-      ];
-      const randomCode = pythonCodes[Math.floor(Math.random() * pythonCodes.length)];
-      await addTextToTerminal(`Random Python Code:\n${randomCode}\n`);
-  });
-
-  document.getElementById('tosButton').addEventListener('click', async function() {
-      await displayText(document.getElementById('terminal'), [
-          "\n",
-          "$ 1. NO SNITCHING\n",
-          "Snitching results in permanent blacklist from all services.\n",
-          "\n",
-          "$ 2. No Pedo Activity\n",
-          "\n",
-          "$ 3. No Abuse of Services\n",
-          "\n",
-          "$ Love\n"
-      ]);
-  });
-
-  document.getElementById('jokeButton').addEventListener('click', async function() {
-      const response = await fetch('https://official-joke-api.appspot.com/random_joke');
-      const data = await response.json();
-      const setup = data.setup;
-      const punchline = data.punchline;
-      await addTextToTerminal(`\nJoke:\n${setup}\n${punchline}\n\n\n`);
-  });
-}
-
-addEventListeners();
